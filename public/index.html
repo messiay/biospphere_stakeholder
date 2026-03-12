@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biosphere – Stakeholder Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #101827;
+    --surface2: #1a2540;
+    --accent1: #00e5c0;
+    --accent2: #5b8fff;
+    --accent3: #ff6b6b;
+    --accent4: #ffc94a;
+    --accent5: #b57bff;
+    --text: #e8edf8;
+    --muted: #7a8aaa;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    position: relative;
+    padding: 64px 48px 56px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 60% 0%, rgba(0,229,192,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 90% 100%, rgba(91,143,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    border: 1px solid rgba(0,229,192,0.3);
+    border-radius: 100px;
+    padding: 4px 14px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 54px);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    max-width: 720px;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--accent1); }
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 32px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent1);
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- SECTION TITLES ---- */
+  .section {
+    padding: 56px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .section-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---- POWER-INTEREST MAP ---- */
+  .map-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    max-height: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .map-axis-x, .map-axis-y {
+    position: absolute;
+    background: rgba(255,255,255,0.06);
+  }
+  .map-axis-x { left: 50%; top: 0; width: 1px; height: 100%; }
+  .map-axis-y { top: 50%; left: 0; width: 100%; height: 1px; }
+  .map-label {
+    position: absolute;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+  }
+  .map-label.bottom { bottom: 12px; left: 50%; transform: translateX(-50%); }
+  .map-label.top { top: 12px; left: 50%; transform: translateX(-50%); }
+  .map-label.left { left: 12px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+  .map-label.right { right: 12px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+  .quad-label {
+    position: absolute;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    opacity: 0.35;
+  }
+  .quad-label.tl { top: 16px; left: 16px; }
+  .quad-label.tr { top: 16px; right: 16px; text-align: right; }
+  .quad-label.bl { bottom: 30px; left: 16px; }
+  .quad-label.br { bottom: 30px; right: 16px; text-align: right; }
+
+  .node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    cursor: default;
+    z-index: 2;
+  }
+  .node-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 12px currentColor;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+  .node-label {
+    font-size: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    background: var(--bg);
+    padding: 2px 7px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ---- STAKEHOLDER CARDS ---- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: var(--card-accent, var(--accent1));
+  }
+  .card-icon {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--card-accent, var(--accent1));
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+  }
+  .card-section-label {
+    font-size: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    margin-top: 14px;
+  }
+  .card-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .card-list li {
+    font-size: 13px;
+    color: #bec9e0;
+    padding-left: 14px;
+    position: relative;
+  }
+  .card-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--card-accent, var(--accent1));
+    font-size: 11px;
+    top: 1px;
+  }
+  .card-highlight {
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--card-accent, var(--accent1));
+    font-weight: 500;
+    margin-top: 14px;
+    border-left: 2px solid var(--card-accent, var(--accent1));
+  }
+
+  /* PAIN LEVEL BAR */
+  .pain-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .pain-label { font-size: 11px; color: var(--muted); min-width: 70px; }
+  .pain-track {
+    flex: 1;
+    height: 5px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .pain-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--card-accent, var(--accent1));
+    width: var(--fill);
+    opacity: 0.85;
+  }
+  .pain-val { font-size: 11px; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--card-accent); min-width: 28px; text-align: right; }
+
+  /* BADGE */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .badge {
+    font-size: 11px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+
+  /* ---- STRATEGY TABLE ---- */
+  .strategy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .strategy-cell {
+    background: var(--surface);
+    padding: 20px;
+  }
+  .strategy-cell.header {
+    background: var(--surface2);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .strategy-cell .sh-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .strategy-cell p {
+    font-size: 12px;
+    color: #8a9bb8;
+    line-height: 1.5;
+  }
+
+  /* ---- HYPOTHESIS SECTION ---- */
+  .hyp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .hyp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    position: relative;
+  }
+  .hyp-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .hyp-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--accent2);
+  }
+  .hyp-body { font-size: 13px; color: #8a9bb8; line-height: 1.55; }
+  .hyp-validate {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--accent1);
+    padding-left: 12px;
+    border-left: 2px solid var(--accent1);
+  }
+
+  /* ---- FOOTER ---- */
+  footer {
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  footer span { font-size: 12px; color: var(--muted); }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 768px) {
+    .hero, .section { padding: 40px 24px; }
+    .strategy-grid { grid-template-columns: 1fr 1fr; }
+    footer { padding: 24px; flex-direction: column; gap: 8px; }
+  }
+  @media (max-width: 500px) {
+    .strategy-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 20px; }
+  }
+
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.013) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.013) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  main { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-tag">Biosphere · Customer Discovery</div>
+  <h1>Stakeholder <span>Mapping</span><br>& Research Report</h1>
+  <p>A thorough analysis of who Biosphere serves, why we chose them, and how their pain shapes our product decisions.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">4</span><span class="stat-label">Stakeholder Groups</span></div>
+    <div class="stat"><span class="stat-num">$30K</span><span class="stat-label">Avg. FTO Search Cost</span></div>
+    <div class="stat"><span class="stat-num">$500/hr</span><span class="stat-label">IP Attorney Rate</span></div>
+    <div class="stat"><span class="stat-num">~6 wks</span><span class="stat-label">Avg. Legal Review Wait</span></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1 – POWER-INTEREST MAP ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">Power vs. Interest Map</span>
+  </div>
+
+  <div class="map-wrap">
+    <div class="map-axis-x"></div>
+    <div class="map-axis-y"></div>
+
+    <span class="map-label bottom">LOW INTEREST → HIGH INTEREST</span>
+    <span class="map-label left">LOW POWER ↑ HIGH POWER</span>
+    <span class="quad-label tl" style="color:#ffc94a">KEEP SATISFIED</span>
+    <span class="quad-label tr" style="color:#00e5c0">MANAGE CLOSELY</span>
+    <span class="quad-label bl" style="color:#7a8aaa">MONITOR</span>
+    <span class="quad-label br" style="color:#5b8fff">KEEP INFORMED</span>
+
+    <!-- Biotech Startups – high interest, high power = top-right -->
+    <div class="node" style="left:74%;top:28%;color:var(--accent1)">
+      <div class="node-dot" style="background:var(--accent1);width:18px;height:18px;"></div>
+      <div class="node-label" style="color:var(--accent1)">Biotech Startups</div>
+    </div>
+    <!-- Pharma R&D – high interest, high power -->
+    <div class="node" style="left:83%;top:18%;color:var(--accent4)">
+      <div class="node-dot" style="background:var(--accent4);width:16px;height:16px;"></div>
+      <div class="node-label" style="color:var(--accent4)">Pharma R&D</div>
+    </div>
+    <!-- Academic Researchers – high interest, medium power = right/mid -->
+    <div class="node" style="left:72%;top:60%;color:var(--accent2)">
+      <div class="node-dot" style="background:var(--accent2);width:15px;height:15px;"></div>
+      <div class="node-label" style="color:var(--accent2)">Academic Researchers</div>
+    </div>
+    <!-- Regulatory Bodies – low interest, high power = top-left -->
+    <div class="node" style="left:22%;top:22%;color:var(--accent3)">
+      <div class="node-dot" style="background:var(--accent3);width:14px;height:14px;"></div>
+      <div class="node-label" style="color:var(--accent3)">Regulators / Patent Offices</div>
+    </div>
+    <!-- IP Law Firms – medium interest, medium power = mid -->
+    <div class="node" style="left:55%;top:50%;color:var(--accent5)">
+      <div class="node-dot" style="background:var(--accent5);width:13px;height:13px;"></div>
+      <div class="node-label" style="color:var(--accent5)">IP Law Firms</div>
+    </div>
+    <!-- University Tech Transfer – low/mid interest, mid power -->
+    <div class="node" style="left:36%;top:62%;color:var(--muted)">
+      <div class="node-dot" style="background:var(--muted);width:11px;height:11px;"></div>
+      <div class="node-label">University TTO</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:14px;">Bubble size reflects relative relevance to Biosphere's core value proposition. Nodes in the top-right quadrant are primary targets.</p>
+</div>
+
+<!-- ===== SECTION 2 – STAKEHOLDER CARDS ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Stakeholder Deep-Dives</span>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- CARD 1: Biotech Startups -->
+    <div class="card" style="--card-accent: var(--accent1)">
+      <div class="card-icon">🧬</div>
+      <div class="card-title">Biotech Startups</div>
+      <div class="card-sub">EARLY-STAGE · SEED TO SERIES B · PRIMARY USER</div>
+
+      <div class="card-section-label">Who They Are</div>
+      <p style="font-size:13px;color:#bec9e0;">Small teams (5–50 people) building genomic tools, diagnostics, or therapeutics. Often founded by researchers transitioning from academia. Working with novel or modified DNA sequences daily.</p>
+
+      <div class="card-section-label">Core Pain Points</div>
+      <ul class="card-list">
+        <li>Cannot afford $10K–$30K freedom-to-operate searches at seed stage</li>
+        <li>Patent landscape in synthetic biology is dense and overlapping — CRISPR battles alone cost $10M+</li>
+        <li>Legal uncertainty blocks investor confidence and funding rounds</li>
+        <li>No technical staff with legal expertise; scientists ≠ IP lawyers</li>
+        <li>Undetected infringement risk can sink a company post-launch</li>
+      </ul>
+
+      <div class="pain-row">
+        <span class="pain-label">Financial Risk</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:92%"></div></div>
+        <span class="pain-val">9.2</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Urgency</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:88%"></div></div>
+        <span class="pain-val">8.8</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Tech Readiness</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:80%"></div></div>
+        <span class="pain-val">8.0</span>
+      </div>
+
+      <div class="card-section-label">What They Need From Biosphere</div>
+      <ul class="card-list">
+        <li>Fast, affordable pre-screening before committing R&D budget</li>
+        <li>Traffic-light risk score they can show investors</li>
+        <li>No legal expertise required to interpret results</li>
+      </ul>
+
+      <div class="card-highlight">💡 Willingness to Pay: $50–$200/month (SaaS). Investors actively pressure this group to show IP clearance.</div>
+
+      <div class="badge-row">
+        <span class="badge">Primary Buyer</span>
+        <span class="badge">High Urgency</span>
+        <span class="badge">Investor-Driven</span>
+      </div>
+    </div>
+
+    <!-- CARD 2: Academic Researchers -->
+    <div class="card" style="--card-accent: var(--accent2)">
+      <div class="card-icon">🎓</div>
+      <div class="card-title">Academic Researchers</div>
+      <div class="card-sub">PHD STUDENTS · POST-DOCS · PRINCIPAL INVESTIGATORS · SECONDARY USER</div>
+
+      <div class="card-section-label">Who They Are</div>
+      <p style="font-size:13px;color:#bec9e0;">University-based scientists working on genomics, molecular biology, or bioinformatics. Often university-funded (non-commercial), but increasingly tied to commercial grants or spinoffs. Use BLAST and FASTA tools daily.</p>
+
+      <div class="card-section-label">Core Pain Points</div>
+      <ul class="card-list">
+        <li>Assume academic use is automatically exempt — often wrong when tied to commercial grants</li>
+        <li>Myriad Genetics precedent: researchers received cease-and-desist letters for BRCA1/BRCA2 work</li>
+        <li>No awareness of biopiracy regulations (Nagoya Protocol, CBD treaties)</li>
+        <li>Publishing patented sequences can create compliance liability</li>
+        <li>Tech transfer offices (TTOs) are slow and bureaucratic — weeks of delays</li>
+      </ul>
+
+      <div class="pain-row">
+        <span class="pain-label">Financial Risk</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:55%"></div></div>
+        <span class="pain-val">5.5</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Urgency</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:60%"></div></div>
+        <span class="pain-val">6.0</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Tech Readiness</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:90%"></div></div>
+        <span class="pain-val">9.0</span>
+      </div>
+
+      <div class="card-section-label">What They Need From Biosphere</div>
+      <ul class="card-list">
+        <li>Pre-publication sequence clearance check</li>
+        <li>Compliance guidance for biodiversity treaties by jurisdiction</li>
+        <li>Institutional/group subscription (PI buys for whole lab)</li>
+      </ul>
+
+      <div class="card-highlight">💡 Best acquisition channel: university partnerships & lab software tools. High FASTA/BLAST familiarity = low onboarding friction.</div>
+
+      <div class="badge-row">
+        <span class="badge">High Volume</span>
+        <span class="badge">Low Awareness</span>
+        <span class="badge">Institutional Buy</span>
+      </div>
+    </div>
+
+    <!-- CARD 3: Pharma R&D Teams -->
+    <div class="card" style="--card-accent: var(--accent4)">
+      <div class="card-icon">💊</div>
+      <div class="card-title">Pharma R&D Teams</div>
+      <div class="card-sub">MID-TO-LARGE PHARMA · R&D COMPLIANCE · SECONDARY BUYER</div>
+
+      <div class="card-section-label">Who They Are</div>
+      <p style="font-size:13px;color:#bec9e0;">Internal research divisions at mid-to-large pharmaceutical companies working on therapeutic proteins, gene therapies, biosimilars. Must navigate dense patent thickets before entering clinical trials.</p>
+
+      <div class="card-section-label">Core Pain Points</div>
+      <ul class="card-list">
+        <li>Established companies spend $100K+ on FTO analysis per product launch</li>
+        <li>Overlapping patent claims in personalized medicine and synthetic biology are frequent</li>
+        <li>Internal IP teams are expensive and bottlenecked — delay research timelines</li>
+        <li>Need multi-jurisdiction clearance (US, EU, India) before global trials</li>
+        <li>Historical cases (Genentech vs. Sanofi, Amgen patent battles) show stakes are enormous</li>
+      </ul>
+
+      <div class="pain-row">
+        <span class="pain-label">Financial Risk</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:98%"></div></div>
+        <span class="pain-val">9.8</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Urgency</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:72%"></div></div>
+        <span class="pain-val">7.2</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Tech Readiness</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:65%"></div></div>
+        <span class="pain-val">6.5</span>
+      </div>
+
+      <div class="card-section-label">What They Need From Biosphere</div>
+      <ul class="card-list">
+        <li>Enterprise-grade API integration into existing R&D pipeline</li>
+        <li>Multi-jurisdiction compliance reports</li>
+        <li>Audit trail for regulatory submissions and investor due diligence</li>
+      </ul>
+
+      <div class="card-highlight">💡 Long-term opportunity: enterprise license ($5K–$20K/yr). Currently use IP law firms charging $500/hr — Biosphere as first-pass triage saves them thousands per query.</div>
+
+      <div class="badge-row">
+        <span class="badge">Enterprise Tier</span>
+        <span class="badge">Budget Available</span>
+        <span class="badge">Complex Needs</span>
+      </div>
+    </div>
+
+    <!-- CARD 4: IP Law Firms -->
+    <div class="card" style="--card-accent: var(--accent5)">
+      <div class="card-icon">⚖️</div>
+      <div class="card-title">IP Law Firms</div>
+      <div class="card-sub">BIOTECH IP ATTORNEYS · INDIRECT STAKEHOLDER / PARTNER</div>
+
+      <div class="card-section-label">Who They Are</div>
+      <p style="font-size:13px;color:#bec9e0;">Specialized biotech IP law firms (e.g., Wolf Greenfield, Finnegan, Cooley) serving pharma, biotech startups, and universities. Represent both risk and opportunity — they could feel threatened or become distribution partners.</p>
+
+      <div class="card-section-label">Role in Ecosystem</div>
+      <ul class="card-list">
+        <li>Currently the primary (expensive) solution to the problem Biosphere solves</li>
+        <li>FTO opinion from a law firm: $10K–$30K per product; wait time: weeks to months</li>
+        <li>Could co-brand or white-label Biosphere as a "preliminary screening" tool</li>
+        <li>Patent attorneys charge $500–$800/hr — Biosphere replaces the first 20 hours</li>
+      </ul>
+
+      <div class="pain-row">
+        <span class="pain-label">Competitive Risk</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:75%"></div></div>
+        <span class="pain-val">7.5</span>
+      </div>
+      <div class="pain-row">
+        <span class="pain-label">Partnership Potential</span>
+        <div class="pain-track"><div class="pain-fill" style="--fill:65%"></div></div>
+        <span class="pain-val">6.5</span>
+      </div>
+
+      <div class="card-section-label">Engagement Strategy</div>
+      <ul class="card-list">
+        <li>Position Biosphere as a triage tool, not a legal opinion replacement</li>
+        <li>Partner with smaller boutique IP firms to offer Biosphere to their startup clients</li>
+        <li>Ensure platform carries clear disclaimer: not a substitute for legal counsel</li>
+      </ul>
+
+      <div class="card-highlight">💡 Key framing: Biosphere sends clients TO law firms better prepared — reducing billable hours wasted on basic screening. Win-win partnership narrative.</div>
+
+      <div class="badge-row">
+        <span class="badge">Indirect</span>
+        <span class="badge">Channel Partner</span>
+        <span class="badge">Monitor Closely</span>
+      </div>
+    </div>
+
+    <!-- CARD 5: Regulators / Patent Offices -->
+    <div class="card" style="--card-accent: var(--accent3)">
+      <div class="card-icon">🏛️</div>
+      <div class="card-title">Regulatory Bodies</div>
+      <div class="card-sub">USPTO · EPO · WIPO · BIODIVERSITY TREATY BODIES · KEEP SATISFIED</div>
+
+      <div class="card-section-label">Who They Are</div>
+      <p style="font-size:13px;color:#bec9e0;">Patent offices and treaty bodies (USPTO, EPO, WIPO, Convention on Biological Diversity) that set the rules Biosphere operationalizes. They don't buy Biosphere but their policies define its value.</p>
+
+      <div class="card-section-label">Why They Matter</div>
+      <ul class="card-list">
+        <li>Post-Myriad ruling (2013): naturally occurring DNA ≠ patentable — created massive compliance uncertainty</li>
+        <li>Nagoya Protocol (CBD) regulates access and benefit-sharing of biological resources</li>
+        <li>Export controls vary by jurisdiction — Biosphere's jurisdiction-aware engine addresses this directly</li>
+        <li>USPTO raised fees 7.5% in 2025 — makes pre-filing screening even more valuable</li>
+      </ul>
+
+      <div class="card-section-label">Engagement Strategy</div>
+      <ul class="card-list">
+        <li>Continuously update Biosphere's legal database as rulings change</li>
+        <li>Position compliance reports as aligned with regulatory expectations</li>
+        <li>Pursue partnerships or recognition from national IP offices long-term</li>
+      </ul>
+
+      <div class="card-highlight">💡 Biosphere's jurisdiction-aware rules engine directly responds to the complexity regulators have created — our core technical differentiator.</div>
+
+      <div class="badge-row">
+        <span class="badge">Indirect</span>
+        <span class="badge">Rules Setter</span>
+        <span class="badge">Database Source</span>
+      </div>
+    </div>
+
+    <!-- CARD 6: University TTOs -->
+    <div class="card" style="--card-accent: var(--muted)">
+      <div class="card-icon">🏫</div>
+      <div class="card-title">University Tech Transfer Offices</div>
+      <div class="card-sub">INSTITUTIONAL GATEKEEPER · MONITOR</div>
+
+      <div class="card-section-label">Who They Are</div>
+      <p style="font-size:13px;color:#bec9e0;">Internal university offices managing IP commercialization. Often overwhelmed, understaffed, and slow. Act as gatekeepers between academic researchers and commercialization decisions.</p>
+
+      <div class="card-section-label">Pain Points</div>
+      <ul class="card-list">
+        <li>Handling hundreds of disclosures with minimal specialist staff</li>
+        <li>Cannot afford to run thorough patent checks on every researcher's project</li>
+        <li>Delays frustrate PIs and slow spinoff creation</li>
+      </ul>
+
+      <div class="card-highlight">💡 Institutional license opportunity: TTO subscribes to Biosphere, all researchers in the university get access. Reduces TTO workload while improving compliance.</div>
+
+      <div class="badge-row">
+        <span class="badge">Institutional</span>
+        <span class="badge">Bottleneck</span>
+        <span class="badge">Volume License</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SECTION 3 – WHY WE NARROWED DOWN ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Why We Narrowed to Biotech Startups & Academic Researchers</span>
+  </div>
+
+  <div class="hyp-grid">
+    <div class="hyp-card">
+      <div class="hyp-num">HYPOTHESIS 01</div>
+      <div class="hyp-title">They face the highest risk with the least resources</div>
+      <p class="hyp-body">Large pharma has internal IP teams and budgets exceeding $100K for FTO. Startups and academics face the same risk — overlapping patents, CRISPR thickets, biopiracy rules — but with near-zero budget to address it.</p>
+      <div class="hyp-validate">→ Validate: Do early-stage founders say legal costs delay their research?</div>
+    </div>
+
+    <div class="hyp-card">
+      <div class="hyp-num">HYPOTHESIS 02</div>
+      <div class="hyp-title">The problem occurs before research begins — not after</div>
+      <p class="hyp-body">Current tools only catch legal issues after publications or funding rounds. Both startups and researchers need a pre-research screening loop, which maps directly to Biosphere's workflow (upload FASTA → get risk score before lab work starts).</p>
+      <div class="hyp-validate">→ Validate: At what stage do researchers typically discover IP conflicts?</div>
+    </div>
+
+    <div class="hyp-card">
+      <div class="hyp-num">HYPOTHESIS 03</div>
+      <div class="hyp-title">They are already familiar with BLAST/FASTA — zero learning curve</div>
+      <p class="hyp-body">Both target groups use BLAST-based sequence alignment as a standard workflow step. Biosphere sits natively in their existing process — no behavioral change required, just an additional compliance layer on a familiar action.</p>
+      <div class="hyp-validate">→ Validate: Do researchers already run BLAST before beginning experiments?</div>
+    </div>
+
+    <div class="hyp-card">
+      <div class="hyp-num">HYPOTHESIS 04</div>
+      <div class="hyp-title">Investor & funder pressure is creating immediate demand</div>
+      <p class="hyp-body">Biotech VCs and grant agencies now explicitly ask about IP clearance before funding. This external pressure converts the problem from "nice to solve" to "must solve now" — especially for seed-to-Series A startups preparing for due diligence.</p>
+      <div class="hyp-validate">→ Validate: Have founders been asked by investors about patent clearance?</div>
+    </div>
+
+    <div class="hyp-card">
+      <div class="hyp-num">HYPOTHESIS 05</div>
+      <div class="hyp-title">The market gap is largest in the $0–$5K legal budget segment</div>
+      <p class="hyp-body">FTO analysis costs $10K–$30K minimum from a law firm. Biosphere can serve the entire underserved segment beneath this threshold — researchers and startups who currently do no screening at all because they can't afford any.</p>
+      <div class="hyp-validate">→ Validate: What do founders currently do instead of hiring an IP attorney?</div>
+    </div>
+
+    <div class="hyp-card">
+      <div class="hyp-num">HYPOTHESIS 06</div>
+      <div class="hyp-title">Regulatory complexity is increasing, not decreasing</div>
+      <p class="hyp-body">Post-Myriad ruling, Nagoya Protocol, CRISPR patent battles (Broad vs. UC Berkeley) — the legal landscape is actively fragmenting. Each new ruling creates new uncertainty that researchers cannot self-navigate, making a continuously-updated platform indispensable.</p>
+      <div class="hyp-validate">→ Validate: Are researchers aware of how recent rulings affect their specific work?</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 – ENGAGEMENT STRATEGY ===== -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Engagement Strategy by Stakeholder</span>
+  </div>
+
+  <div class="strategy-grid">
+    <div class="strategy-cell header">Stakeholder</div>
+    <div class="strategy-cell header">Priority</div>
+    <div class="strategy-cell header">Biosphere's Offer</div>
+    <div class="strategy-cell header">Engagement Channel</div>
+
+    <div class="strategy-cell"><span class="sh-name" style="color:var(--accent1)">Biotech Startups</span></div>
+    <div class="strategy-cell"><p>🔴 Primary</p></div>
+    <div class="strategy-cell"><p>Pay-per-screen or monthly SaaS plan; investor-ready compliance report</p></div>
+    <div class="strategy-cell"><p>Y Combinator forums, biotech accelerators, LinkedIn founders</p></div>
+
+    <div class="strategy-cell"><span class="sh-name" style="color:var(--accent2)">Academic Researchers</span></div>
+    <div class="strategy-cell"><p>🔴 Primary</p></div>
+    <div class="strategy-cell"><p>Freemium for single researchers; institutional license for labs & TTOs</p></div>
+    <div class="strategy-cell"><p>University bio departments, conferences (ISMB, ASHG), PIs</p></div>
+
+    <div class="strategy-cell"><span class="sh-name" style="color:var(--accent4)">Pharma R&D</span></div>
+    <div class="strategy-cell"><p>🟡 Secondary</p></div>
+    <div class="strategy-cell"><p>Enterprise API; multi-jurisdiction report; integration with R&D tools</p></div>
+    <div class="strategy-cell"><p>Direct outreach to R&D compliance heads; pharma tech conferences</p></div>
+
+    <div class="strategy-cell"><span class="sh-name" style="color:var(--accent5)">IP Law Firms</span></div>
+    <div class="strategy-cell"><p>🟡 Partner</p></div>
+    <div class="strategy-cell"><p>White-label or referral partnership; "triage before billable hours" model</p></div>
+    <div class="strategy-cell"><p>IP bar associations, biotech law conferences, direct firm outreach</p></div>
+
+    <div class="strategy-cell"><span class="sh-name" style="color:var(--accent3)">Regulators</span></div>
+    <div class="strategy-cell"><p>🟢 Monitor</p></div>
+    <div class="strategy-cell"><p>Track rulings; align database updates to new policies</p></div>
+    <div class="strategy-cell"><p>USPTO/EPO public comment periods, policy newsletters</p></div>
+
+    <div class="strategy-cell"><span class="sh-name" style="color:var(--muted)">University TTOs</span></div>
+    <div class="strategy-cell"><p>🟢 Monitor</p></div>
+    <div class="strategy-cell"><p>Institutional bundle; reduce TTO backlog as value prop</p></div>
+    <div class="strategy-cell"><p>AUTM (tech transfer association), university research offices</p></div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <span>Biosphere · PES University · CIE</span>
+  <span>Stakeholder Research Report · Customer Discovery Slide</span>
+  <span>Confidential — Internal Use</span>
+</footer>
+
+</main>
+</body>
+</html>
